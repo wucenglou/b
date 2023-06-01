@@ -30,6 +30,7 @@ func openLogFile(filePath string) *os.File {
 	switch {
 	case os.IsNotExist(err):
 		mkDir()
+		_ = os.WriteFile(filePath, []byte(""), os.ModePerm)
 	case os.IsPermission(err):
 		log.Fatalf("Permission :%v", err)
 	}
