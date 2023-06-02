@@ -2,13 +2,17 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
+	_ "b/docs"
 	"b/middleware/jwt"
 	"b/pkg/setting"
 	"b/routers/api"
 	v1 "b/routers/api/v1"
 )
 
+// InitRouter initialize routing information
 func InitRouter() *gin.Engine {
 	r := gin.New()
 
@@ -25,6 +29,9 @@ func InitRouter() *gin.Engine {
 	})
 
 	r.GET("/auth", api.GetAuth)
+
+	// docs.SwaggerInfo.BasePath = "/api/v1"
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
