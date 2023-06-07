@@ -1,13 +1,17 @@
 package routers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "b/docs"
 	"b/middleware/jwt"
+	"b/pkg/export"
 	"b/pkg/setting"
+	"b/pkg/upload"
 	"b/routers/api"
 	v1 "b/routers/api/v1"
 )
@@ -20,7 +24,7 @@ func InitRouter() *gin.Engine {
 
 	r.Use(gin.Recovery())
 
-	gin.SetMode(setting.RunMode)
+	gin.SetMode(setting.ServerSetting.RunMode)
 
 	r.GET("/test", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -28,10 +32,18 @@ func InitRouter() *gin.Engine {
 		})
 	})
 
-	r.GET("/auth", api.GetAuth)
+	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
 
+	r.GET("/auth", api.GetAuth)
 	// docs.SwaggerInfo.BasePath = "/api/v1"
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.POST("/upload", api.UploadImage)
+
+	//导出标签
+	r.POST("/tags/export", v1.ExportTag)
+	//导入标签
+	r.POST("/tags/import", v1.ImportTag)
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
