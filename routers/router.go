@@ -10,6 +10,7 @@ import (
 	_ "b/docs"
 	"b/middleware/jwt"
 	"b/pkg/export"
+	"b/pkg/qrcode"
 	"b/pkg/setting"
 	"b/pkg/upload"
 	"b/routers/api"
@@ -34,6 +35,7 @@ func InitRouter() *gin.Engine {
 
 	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
 	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
+	r.StaticFS("/qrcode", http.Dir(qrcode.GetQrCodeFullPath()))
 
 	r.GET("/auth", api.GetAuth)
 	// docs.SwaggerInfo.BasePath = "/api/v1"
@@ -44,6 +46,8 @@ func InitRouter() *gin.Engine {
 	r.POST("/tags/export", v1.ExportTag)
 	//导入标签
 	r.POST("/tags/import", v1.ImportTag)
+
+	r.POST("/api/v1/articles/poster/generate", v1.GenerateArticlePoster)
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
